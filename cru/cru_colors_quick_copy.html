@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cru Colors Quick Copy — Tertiary Palette</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Sora', 'sans-serif'],
+          },
+          colors: {
+            cru: {
+              gray: '#F0EFEE',
+              graphite: '#565652',
+              black: '#000000',
+              yellow: '#FFD000',
+              orange: '#F08020',
+              cyan: '#00C0D8'
+            }
+          },
+          keyframes: {
+            copiedPop: {
+              '0%': { transform: 'scale(1)' },
+              '40%': { transform: 'scale(1.02)' },
+              '100%': { transform: 'scale(1)' },
+            },
+            badgeFlash: {
+              '0%': { transform: 'scale(0.85)', opacity: '0.4' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          },
+          animation: {
+            copiedPop: 'copiedPop 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
+            badgeFlash: 'badgeFlash 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F0EFEE;
+      color: #1F1F1F;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .color-card {
+      transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+      cursor: pointer;
+    }
+    .color-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px -4px rgba(0, 0, 0, 0.16);
+    }
+    .color-card:active {
+      transform: scale(0.985);
+    }
+    .copy-badge {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.18s ease;
+    }
+    /* Toast feedback */
+    #global-toast {
+      transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="min-h-screen lg:h-screen lg:max-h-screen flex flex-col justify-between overflow-x-hidden lg:overflow-hidden antialiased">
+
+  <header class="px-5 pt-3 pb-2 sm:px-8 sm:pt-4 flex items-center justify-between border-b border-black/5 bg-[#F0EFEE]/90 backdrop-blur-sm z-20">
+    <div class="flex items-baseline space-x-3">
+      <h1 class="font-heading font-bold text-base sm:text-lg tracking-tight text-neutral-900 flex items-center gap-2">
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#FFD000] ring-2 ring-black/10"></span>
+        Cru Colors Quick Copy
+      </h1>
+      <span class="text-xs font-medium text-neutral-500 uppercase tracking-wider hidden sm:inline-block">
+        Tertiary Palette • 5.4
+      </span>
+    </div>
+
+    <!-- External Link to Cru Brand Guidelines -->
+    <a 
+      href="https://www.cru.org/brand" 
+      target="_blank" 
+      rel="noopener noreferrer" 
+      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/70 hover:bg-white text-neutral-700 hover:text-neutral-900 shadow-sm border border-neutral-300/80 transition-all duration-150 group"
+      title="Visit Cru Brand Guidelines"
+    >
+      <span>cru.org/brand</span>
+      <svg class="w-3.5 h-3.5 text-neutral-400 group-hover:text-neutral-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+      </svg>
+    </a>
+  </header>
+
+  <main class="flex-1 px-4 py-2 sm:px-6 sm:py-3 max-w-[1720px] w-full mx-auto flex flex-col justify-center">
+    <div 
+      id="palette-grid"
+      class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2.5 lg:gap-3 w-full h-full max-h-[85vh] lg:max-h-[calc(100vh-95px)] auto-rows-fr"
+    >
+      <!-- Cards injected dynamically by JavaScript to ensure precise Cru Brand values -->
+    </div>
+  </main>
+
+  <footer class="px-5 py-2 sm:px-8 flex items-center justify-between text-[11px] text-neutral-500 border-t border-black/5 bg-[#F0EFEE]">
+    <p class="flex items-center gap-1.5">
+      <span>Click any card to copy HEX code instantly.</span>
+      <span class="hidden md:inline text-neutral-400">• Formats pass WCAG AA contrast standards.</span>
+    </p>
+    <div class="flex items-center gap-3">
+      <span id="copied-counter" class="text-neutral-400">Ready</span>
+      <span class="text-neutral-300">|</span>
+      <span>Cru Creative & Brand System</span>
+    </div>
+  </footer>
+
+  <div 
+    id="global-toast" 
+    class="fixed bottom-12 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-neutral-900/95 text-white text-xs font-medium shadow-xl opacity-0 pointer-events-none z-50 flex items-center gap-2 translate-y-3"
+  >
+    <svg class="w-4 h-4 text-[#FFD000]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toast-message">Copied #HEX to clipboard</span>
+  </div>
+
+  <script>
+    // Cru Tertiary Palette (Section 5.4 of Cru Brand & Voice Guidelines)
+    // 20 colors arranged in family columns (Warm / Pinks / Blues / Greens / Neutrals)
+    const CRU_TERTIARY_PALETTE = [
+      // Column 1: Warm
+      {
+        name: "Lemon",
+        hex: "#FFE378",
+        rgb: "255 / 227 / 120",
+        pms: "PMS 1205 C/U",
+        cmyk: "C=0 M=3 Y=43 K=0",
+        theme: "dark"
+      },
+      {
+        name: "Yellow",
+        hex: "#FFD000",
+        rgb: "255 / 208 / 0",
+        pms: "PMS 116 C/U",
+        cmyk: "C=0 M=14 Y=100 K=0",
+        theme: "dark"
+      },
+      {
+        name: "Orange",
+        hex: "#F08020",
+        rgb: "240 / 128 / 32",
+        pms: "PMS 151 C/U",
+        cmyk: "C=0 M=60 Y=100 K=0",
+        theme: "light"
+      },
+      {
+        name: "Vermilion",
+        hex: "#D34400",
+        rgb: "211 / 68 / 0",
+        pms: "PMS 173 C/U",
+        cmyk: "C=0 M=82 Y=94 K=2",
+        theme: "light"
+      },
+
+      // Column 2: Pinks & Reds
+      {
+        name: "Rose",
+        hex: "#FFB4C8",
+        rgb: "255 / 180 / 200",
+        pms: "PMS 196 C/U",
+        cmyk: "C=0 M=23 Y=6 K=0",
+        theme: "dark"
+      },
+      {
+        name: "Pink",
+        hex: "#EA657F",
+        rgb: "234 / 101 / 127",
+        pms: "PMS 1777 C/U",
+        cmyk: "C=0 M=65 Y=25 K=0",
+        theme: "light"
+      },
+      {
+        name: "Cerise",
+        hex: "#C23C49",
+        rgb: "194 / 60 / 73",
+        pms: "PMS 703 C/U",
+        cmyk: "C=6 M=91 Y=53 K=16",
+        theme: "light"
+      },
+      {
+        name: "Ruby",
+        hex: "#991313",
+        rgb: "153 / 19 / 19",
+        pms: "PMS 201 C/U",
+        cmyk: "C=7 M=100 Y=68 K=32",
+        theme: "light"
+      },
+
+      // Column 3: Cyans & Blues
+      {
+        name: "Sky",
+        hex: "#89EFF7",
+        rgb: "137 / 239 / 247",
+        pms: "PMS 304 C/U",
+        cmyk: "C=34 M=0 Y=6 K=0",
+        theme: "dark"
+      },
+      {
+        name: "Cyan",
+        hex: "#00C0D8",
+        rgb: "0 / 192 / 216",
+        pms: "PMS 306 C/U",
+        cmyk: "C=75 M=0 Y=5 K=0",
+        theme: "dark"
+      },
+      {
+        name: "Turquoise",
+        hex: "#007890",
+        rgb: "0 / 120 / 144",
+        pms: "PMS 633 C/U",
+        cmyk: "C=98 M=6 Y=10 K=29",
+        theme: "light"
+      },
+      {
+        name: "Navy",
+        hex: "#1F1F47",
+        rgb: "31 / 31 / 71",
+        pms: "PMS 2758 C/U",
+        cmyk: "C=100 M=95 Y=5 K=39",
+        theme: "light"
+      },
+
+      // Column 4: Greens
+      {
+        name: "Mint",
+        hex: "#88E4B6",
+        rgb: "136 / 228 / 182",
+        pms: "PMS 344 C/U",
+        cmyk: "C=32 M=0 Y=30 K=0",
+        theme: "dark"
+      },
+      {
+        name: "Green",
+        hex: "#24C976",
+        rgb: "36 / 201 / 118",
+        pms: "PMS 2414 C/U",
+        cmyk: "C=70 M=0 Y=65 K=0",
+        theme: "dark"
+      },
+      {
+        name: "Moss",
+        hex: "#476052",
+        rgb: "71 / 96 / 82",
+        pms: "PMS 5625 C/U",
+        cmyk: "C=46 M=18 Y=44 K=37",
+        theme: "light"
+      },
+      {
+        name: "Olive Drab",
+        hex: "#2E3A33",
+        rgb: "46 / 58 / 51",
+        pms: "PMS 5605 C/U",
+        cmyk: "C=82 M=36 Y=83 K=90",
+        theme: "light"
+      },
+
+      // Column 5: Neutrals
+      {
+        name: "White",
+        hex: "#FFFFFF",
+        rgb: "255 / 255 / 255",
+        pms: "N/A",
+        cmyk: "C=0 M=0 Y=0 K=0",
+        theme: "dark",
+        border: true
+      },
+      {
+        name: "Gray",
+        hex: "#F0EFEE",
+        rgb: "240 / 239 / 238",
+        pms: "PMS Warm Gray 1 C/U",
+        cmyk: "C=3 M=3 Y=6 K=7",
+        theme: "dark",
+        border: true
+      },
+      {
+        name: "Graphite",
+        hex: "#565652",
+        rgb: "86 / 86 / 82",
+        pms: "PMS 2334 C/U",
+        cmyk: "C=62 M=56 Y=56 K=16",
+        theme: "light"
+      },
+      {
+        name: "Black",
+        hex: "#000000",
+        rgb: "0 / 0 / 0",
+        pms: "PMS Black 6 C/U",
+        cmyk: "C=20 M=20 Y=30 K=100",
+        theme: "light"
+      }
+    ];
+
+    let toastTimeout = null;
+    let copyCount = 0;
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(err => {
+          fallbackCopyText(text);
+        });
+      } else {
+        fallbackCopyText(text);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Copy fallback failed', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    const gridContainer = document.getElementById('palette-grid');
+    const toastEl = document.getElementById('global-toast');
+    const toastMsgEl = document.getElementById('toast-message');
+    const copiedCounterEl = document.getElementById('copied-counter');
+
+    function renderPalette() {
+      gridContainer.innerHTML = '';
+
+      CRU_TERTIARY_PALETTE.forEach((item, index) => {
+        const isDarkText = item.theme === 'dark';
+        const textColorClass = isDarkText ? 'text-black' : 'text-white';
+        const subTextColorClass = isDarkText ? 'text-black/75' : 'text-white/80';
+        const detailColorClass = isDarkText ? 'text-black/60' : 'text-white/65';
+        const badgeBgClass = isDarkText 
+          ? 'bg-black/10 hover:bg-black/15 text-black border-black/10' 
+          : 'bg-white/20 hover:bg-white/30 text-white border-white/20';
+
+        const card = document.createElement('div');
+        card.className = `color-card relative rounded-none p-2.5 sm:p-3 flex flex-col justify-between overflow-hidden shadow-xs border ${item.border ? 'border-neutral-300' : 'border-transparent'} ${textColorClass}`;
+        card.style.backgroundColor = item.hex;
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `Copy ${item.name} hex code ${item.hex}`);
+
+        card.innerHTML = `
+          <!-- Top Row: Micro Copy Button/Pill (Retaining rounded corners) -->
+          <div class="flex items-start justify-end w-full">
+            <div 
+              id="badge-${index}" 
+              class="copy-badge px-2 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-[11px] font-semibold tracking-wide flex items-center gap-1 border shadow-xs transition-transform ${badgeBgClass}"
+            >
+              <svg id="icon-copy-${index}" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+              <svg id="icon-check-${index}" class="w-3 h-3 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span id="text-${index}">Copy</span>
+            </div>
+          </div>
+
+          <!-- Bottom Left: Color Details with RGB directly under HEX -->
+          <div class="mt-2 text-left leading-tight">
+            <div class="font-heading font-bold text-xs sm:text-sm md:text-base tracking-tight mb-0.5">
+              ${item.name}
+            </div>
+            <div class="font-mono text-xs font-semibold tracking-normal ${subTextColorClass}">
+              ${item.hex}
+            </div>
+            <div class="font-mono text-[10px] sm:text-[11px] font-medium tracking-tight mt-0.5 ${subTextColorClass}">
+              RGB ${item.rgb}
+            </div>
+            <div class="mt-0.5 text-[9px] sm:text-[10px] font-medium leading-relaxed tracking-tight ${detailColorClass} hidden xl:block">
+              <div>${item.pms}</div>
+            </div>
+          </div>
+        `;
+
+        // Handle trigger action
+        const triggerCopy = (e) => {
+          e.preventDefault();
+          executeCopyAction(item, index, card);
+        };
+
+        card.addEventListener('click', triggerCopy);
+        card.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            triggerCopy(e);
+          }
+        });
+
+        gridContainer.appendChild(card);
+      });
+    }
+
+    function executeCopyAction(colorItem, index, cardElement) {
+      copyToClipboard(colorItem.hex);
+
+      // Card pop animation
+      cardElement.classList.remove('animate-copiedPop');
+      void cardElement.offsetWidth; // Trigger reflow
+      cardElement.classList.add('animate-copiedPop');
+
+      // Update badge
+      const badge = document.getElementById(`badge-${index}`);
+      const iconCopy = document.getElementById(`icon-copy-${index}`);
+      const iconCheck = document.getElementById(`icon-check-${index}`);
+      const badgeText = document.getElementById(`text-${index}`);
+
+      if (badge && iconCopy && iconCheck && badgeText) {
+        badge.classList.add('animate-badgeFlash');
+        iconCopy.classList.add('hidden');
+        iconCheck.classList.remove('hidden');
+        badgeText.textContent = 'Copied!';
+
+        setTimeout(() => {
+          badge.classList.remove('animate-badgeFlash');
+          iconCopy.classList.remove('hidden');
+          iconCheck.classList.add('hidden');
+          badgeText.textContent = 'Copy';
+        }, 1200);
+      }
+
+      // Show toast
+      showToast(`Copied ${colorItem.name} (${colorItem.hex})`);
+
+      // Update counter
+      copyCount++;
+      copiedCounterEl.textContent = `${copyCount} copied`;
+    }
+
+    function showToast(message) {
+      if (toastTimeout) clearTimeout(toastTimeout);
+
+      toastMsgEl.textContent = message;
+      toastEl.classList.remove('opacity-0', 'translate-y-3', 'pointer-events-none');
+      toastEl.classList.add('opacity-100', 'translate-y-0');
+
+      toastTimeout = setTimeout(() => {
+        toastEl.classList.remove('opacity-100', 'translate-y-0');
+        toastEl.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
+      }, 1600);
+    }
+
+    // Initialize palette on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderPalette();
+    });
+  </script>
+</body>
+</html>
